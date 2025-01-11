@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="en-EN">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AMR for mapping using Ultra-Sonic Sensors and Python</title>
+    <style>
+        body {
+            font-family: 'Thorndale', serif;
+            font-size: large;
+            margin: 2cm;
+
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 0.5em;
+            text-align: left;
+        }
+        .header {
+            background-color: #0099ff;
+            color: #ffffff;
+        }
+        .content {
+            background-color: #eeeeee;
+        }
+        .link {
+            text-decoration: none;
+            color: #000000;
+        }
+        .section-title {
+            background-color: #0099ff;
+            color: #ffffff;
+            font-size: 1.25em;
+            padding: 0.5em;
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <table>
+            <tr>
+                <td colspan="2">
+                    <p></p>
+                </td>
+                <td colspan="7">
+                    <h1 style="margin: 0; text-align: left;">AMR for mapping using Ultra-Sonic Sensors and Python</h1>
+                </td>
+                <td colspan="3" rowspan="4" style="text-align: center;">
+                    <img src="LogoDEE.jpg" alt="LABSIS Logo" style="width: 231px; height: 110px;">
+                    <p>LABSI</p>
+                    <p>2024</p>
+                </td>
+            </tr>
+            <tr>
+                <td></td>
+                <td colspan="5">Rodrigo Oliveira, 1231491</td>
+                <td colspan="2">1231491@isep.ipp.pt</td>
+            </tr>
+
+        </table>
+    </header>
+    <nav>
+        <table class="content">
+            <tr>
+                <td><a href="#introduction" class="link">Introduction</a></td>
+                <td><a href="#architecture" class="link">Architecture</a></td>
+                <td><a href="#hardware" class="link">Hardware</a></td>
+                <td><a href="#software" class="link">Software</a></td>
+                <td><a href="#results" class="link">Results</a></td>
+                <td><a href="#conclusions" class="link">Conclusions</a></td>
+                <td><a href="#references" class="link">References</a></td>
+            </tr>
+        </table>
+    </nav>
+    <main>
+        <section id="introduction">
+            <h2 class="section-title">Introduction</h2>
+            <h3>Abstract</h3>
+            <p>
+                Autonomous Mobile Robots (AMRs) are increasingly becoming essential in various fields, from industrial automation to home robotics.  <br>
+                Their ability to navigate and operate independently in dynamic environments has opened numerous possibilities for their application. <br>
+                This project aims to design and develop an AMR capable of autonomously mapping a 2D environment and navigating to specific locations within that mapped area. The goal is to create a cost-effective and efficient platform that demonstrates the potential of AMRs in real-world scenarios, with a focus on usability and accessibility. <br>        
+            </p>
+
+            <h3>Requirements</h3>
+            <p> 
+                The robot to be built has the goal of mapping a given area, to achieve this we must comply with the following requirements: <br>
+            •	It must be capable of reliably relaying the current position in relation to some point, and current angle                   <br>
+            •	It must be Wi-Fi enabled in order to be controlled by an outside device                                                     <br>
+            •	It must be battery powered so that the robot may be fully autonomous                                                        <br>
+            •	It must be cheap
+            </p>
+
+            <h3>State of the Art</h3>
+            <p>
+                To determine the best approach for developing our project, it's important to understand the current state of available technologies. To achieve this, we have decided to create a comparison table that organizes the existing solutions based on their suitability for our goals, as presented in Table 1.
+                Before creating the table, we must first define the key parameters for our project. The robot platform should be low-cost and feature Wi-Fi capabilities to enable remote communication and data transmission. Since the objective is to map a given area, the robot will require at least two motors equipped with encoders to gather positioning data, which is essential for the mapping process. Additionally, the robot must be equipped with distance sensors to measure the proximity of objects, ensuring accurate environmental mapping. Finally, the platform should be battery-powered for mobility and ease of use in different environments.
+
+            <style type="text/css">
+                .tg  {border-collapse:collapse;border-spacing:0;}
+                .tg td{border-color:black;border-style:solid;border-width:1px;font-family:Arial, sans-serif;font-size:14px;
+                overflow:hidden;padding:10px 5px;word-break:normal;}
+                .tg th{border-color:black;border-style:solid;border-width:1px;font-family:Arial, sans-serif;font-size:14px;
+                font-weight:normal;overflow:hidden;padding:10px 5px;word-break:normal;}
+                .tg .tg-xjr9{border-color:inherit;font-size:large;font-weight:bold;text-align:left;vertical-align:top}
+                .tg .tg-49rs{border-color:inherit;font-size:large;text-align:center;vertical-align:top}
+                .tg .tg-oo5l{border-color:inherit;font-size:large;font-weight:bold;text-align:center;vertical-align:top}
+            </style>
+            <table class="tg"><thead>
+                <tr>
+                    <th class="tg-49rs">Table1</th>
+                    <th class="tg-oo5l">TurtleBot4 [1]</th>
+                    <th class="tg-oo5l">Hiwonder [2]</th>
+                    <th class="tg-oo5l">&nbsp;&nbsp;Kitronik [3]&nbsp;&nbsp;</th>
+                    <th class="tg-oo5l">JetBot Pro [4]</th>
+                </tr></thead>
+                <tbody>
+                <tr>
+                    <td class="tg-xjr9">Motors</td>
+                    <td class="tg-49rs">2</td>
+                    <td class="tg-49rs">4</td>
+                    <td class="tg-49rs">2</td>
+                    <td class="tg-49rs">2</td>
+                </tr>
+                <tr>
+                    <td class="tg-xjr9">Encoders</td>
+                    <td class="tg-49rs">YES</td>
+                    <td class="tg-49rs">NO</td>
+                    <td class="tg-49rs">YES</td>
+                    <td class="tg-49rs">YES</td>
+                </tr>
+                <tr>
+                    <td class="tg-xjr9">Wireless<br>Communication</td>
+                    <td class="tg-49rs">Wi-Fi</td>
+                    <td class="tg-49rs">Wi-Fi</td>
+                    <td class="tg-49rs">None</td>
+                    <td class="tg-49rs">Wi-Fi</td>
+                </tr>
+                <tr>
+                    <td class="tg-xjr9">Sensos</td>
+                    <td class="tg-49rs">LIDAR/Camera</td>
+                    <td class="tg-49rs">US/Camera</td>
+                    <td class="tg-49rs">US</td>
+                    <td class="tg-49rs">LIDAR/Camera</td>
+                </tr>
+                <tr>
+                    <td class="tg-xjr9">Baterry</td>
+                    <td class="tg-49rs">YES</td>
+                    <td class="tg-49rs">YES</td>
+                    <td class="tg-49rs">NO</td>
+                    <td class="tg-49rs">YES</td>
+                </tr>
+                <tr>
+                    <td class="tg-xjr9">Price [€]</td>
+                    <td class="tg-49rs">2200</td>
+                    <td class="tg-49rs">225</td>
+                    <td class="tg-49rs">37</td>
+                    <td class="tg-49rs">450</td>
+                </tr>
+            </tbody></table>
+
+            </p>
+
+        </section>
+
+        <section id="architecture">
+            <h2 class="section-title">Architecture</h2>
+            <h3>System Overview</h3>
+            <p>
+                To achieve the goal of mapping a given area, a custom architecture was designed. 
+                This architecture consists of a microcontroller to control the AMR (Autonomous Mobile Robot) and another microcontroller serving as a server to relay data to an external computer and receive commands from it.
+                This approach results in a computationally lightweight vehicle, which is crucial for keeping costs down. 
+                Additionally, using this architecture extends the system's lifespan, as a Wi-Fi antenna consumes significantly less power than a more powerful onboard computer.
+            </p>
+
+            <h3>High Level Architecture</h3>
+
+            <div style="text-align: center;">
+                <img src="HLArch.png" alt="Architecture Diagram" style="width: 50%; height: auto;">
+            </div>
+
+            <h3>Detailed Architecture</h3>
+
+            <div style="text-align: center;">
+                <img src="DetArch.png" alt="Architecture Diagram" style="width: 50%; height: auto;">
+            </div>
+
+
+
+
+        </section>
+
+        <section id="hardware">
+            <h2 class="section-title">Hardware</h2>
+            <h3>Disclamer</h3>
+            <p>The chosen componets, even if not the best solution available, are what was available at the time of writing and therefore were the ones chosen.</p>
+
+            <h3>2D Sensors</h3>
+            <p>
+                <style type="text/css">
+                    .tg  {border-collapse:collapse;border-spacing:0;}
+                    .tg td{border-color:black;border-style:solid;border-width:1px;font-family:Arial, sans-serif;font-size:14px;
+                      overflow:hidden;padding:10px 5px;word-break:normal;}
+                    .tg th{border-color:black;border-style:solid;border-width:1px;font-family:Arial, sans-serif;font-size:14px;
+                      font-weight:normal;overflow:hidden;padding:10px 5px;word-break:normal;}
+                    .tg .tg-uzi9{font-size:large;text-align:center;vertical-align:top}
+                    .tg .tg-peb5{font-size:large;text-align:left;vertical-align:top}
+                    .tg .tg-2x6o{font-size:large;font-weight:bold;text-align:left;vertical-align:top}
+                    </style>
+                    <table class="tg"><thead>
+                      <tr>
+                        <th class="tg-peb5"></th>
+                        <th class="tg-2x6o">Range [m]</th>
+                        <th class="tg-2x6o">Resolution [mm]</th>
+                        <th class="tg-2x6o">Frequency [Hz]</th>
+                        <th class="tg-2x6o">Price [€]</th>
+                      </tr></thead>
+                    <tbody>
+                      <tr>
+                        <td class="tg-2x6o">HC-SR04P</td>
+                        <td class="tg-uzi9">0.02 to 4</td>
+                        <td class="tg-uzi9">3</td>
+                        <td class="tg-uzi9">40</td>
+                        <td class="tg-uzi9">3.7 [5]</td>
+                      </tr>
+                      <tr>
+                        <td class="tg-2x6o">TFmini-S</td>
+                        <td class="tg-uzi9">0.03 to 12</td>
+                        <td class="tg-uzi9">10</td>
+                        <td class="tg-uzi9">100</td>
+                        <td class="tg-uzi9">41 [6]</td>
+                      </tr>
+                      <tr>
+                        <td class="tg-2x6o">RPLIDAR A1M8</td>
+                        <td class="tg-uzi9">0.15 to 12</td>
+                        <td class="tg-uzi9">1%</td>
+                        <td class="tg-uzi9">10</td>
+                        <td class="tg-uzi9">114 [7]</td>
+                      </tr>
+                    </tbody>
+                    </table>
+            </p>
+
+            <p>
+                <br>
+                For the 2D sensor, the HC-SR04P ultrasonic sensor was chosen. <br>
+                Although these sensors are more limited compared to other options, they are significantly cheaper. <br>
+                The limitations are mitigated by using four sensors, providing more comprehensive coverage. This setup enables the robot to take additional readings of its environment, resulting in a more accurate map. <br>
+                This approach helps minimize costs while still achieving the desired outcomes. <br>
+            
+            </p>
+
+            <h3>Motors and encoders</h3>
+            <p>
+                
+                <style type="text/css">
+                .tg  {border-collapse:collapse;border-spacing:0;}
+                .tg td{border-color:black;border-style:solid;border-width:1px;font-family:Arial, sans-serif;font-size:14px;
+                  overflow:hidden;padding:10px 5px;word-break:normal;}
+                .tg th{border-color:black;border-style:solid;border-width:1px;font-family:Arial, sans-serif;font-size:14px;
+                  font-weight:normal;overflow:hidden;padding:10px 5px;word-break:normal;}
+                .tg .tg-1wig{font-size: large;font-weight:bold;text-align:left;vertical-align:top}
+                .tg .tg-baqh{font-size: large;text-align:center;vertical-align:top}
+                .tg .tg-0lax{font-size: large;text-align:left;vertical-align:top}
+                </style>
+                <table class="tg"><thead>
+                  <tr>
+                    <th class="tg-0lax"></th>
+                    <th class="tg-1wig">RPM</th>
+                    <th class="tg-1wig">Voltage [V]</th>
+                    <th class="tg-1wig">Current [mA]</th>
+                    <th class="tg-1wig">Type of Encoder</th>
+                    <th class="tg-1wig">Steps Per Rev</th>
+                    <th class="tg-1wig">Price&nbsp;&nbsp;[€]</th>
+                  </tr></thead>
+                <tbody>
+                  <tr>
+                    <td class="tg-1wig">JGA25 - <br>370DC</td>
+                    <td class="tg-baqh">170</td>
+                    <td class="tg-baqh">6</td>
+                    <td class="tg-baqh">200</td>
+                    <td class="tg-baqh">Magnetic</td>
+                    <td class="tg-baqh">22</td>
+                    <td class="tg-baqh">9.6 [8]</td>
+                  </tr>
+                  <tr>
+                    <td class="tg-1wig">N20 Gear<br>Motor</td>
+                    <td class="tg-baqh">75</td>
+                    <td class="tg-baqh">6</td>
+                    <td class="tg-baqh">70 </td>
+                    <td class="tg-baqh">Magnetic</td>
+                    <td class="tg-baqh">14</td>
+                    <td class="tg-baqh">17.84 [9]</td>
+                  </tr>
+                  <tr>
+                    <td class="tg-1wig">EMG30</td>
+                    <td class="tg-baqh">170</td>
+                    <td class="tg-baqh">12</td>
+                    <td class="tg-baqh">200</td>
+                    <td class="tg-baqh">Magnetic</td>
+                    <td class="tg-baqh">11</td>
+                    <td class="tg-baqh">45.82 [10]</td>
+                  </tr>
+                </tbody></table>
+            
+            </p>
+            
+            <p>
+                <br>
+                For the motors it was chosen to use the JGA25-370DC as it was the cheapest and the best equilibrium between the cost and quality. <br>
+                The Steps per rev refers to the resolution of the encoder. <br>
+                However, it is notable that this motor has a gear box, as such, these refer to motor revolutions and not shaft revolutions, making it far more precise than it appears. <br>
+            </p>
+
+            <h3>Microcontrollers</h3>
+            <p>
+                
+                <style type="text/css">
+                    .tg  {border-collapse:collapse;border-spacing:0;}
+                    .tg td{border-color:black;border-style:solid;border-width:1px;font-family:Arial, sans-serif;font-size:14px;
+                      overflow:hidden;padding:10px 5px;word-break:normal;}
+                    .tg th{border-color:black;border-style:solid;border-width:1px;font-family:Arial, sans-serif;font-size:14px;
+                      font-weight:normal;overflow:hidden;padding:10px 5px;word-break:normal;}
+                    .tg .tg-uzi9{font-size:large;text-align:center;vertical-align:top}
+                    .tg .tg-2x6o{font-size:large;font-weight:bold;text-align:left;vertical-align:top}
+                    </style>
+                    <table class="tg"><thead>
+                      <tr>
+                        <th class="tg-2x6o"></th>
+                        <th class="tg-2x6o">GPIO pins</th>
+                        <th class="tg-2x6o">Wi-Fi</th>
+                        <th class="tg-2x6o">Logic Level&nbsp;&nbsp;1 [V]</th>
+                        <th class="tg-2x6o">CPU [MHz]</th>
+                        <th class="tg-2x6o">Price [€]</th>
+                      </tr></thead>
+                    <tbody>
+                      <tr>
+                        <td class="tg-2x6o">Arduino Uno</td>
+                        <td class="tg-uzi9">14</td>
+                        <td class="tg-uzi9">NO</td>
+                        <td class="tg-uzi9">5</td>
+                        <td class="tg-uzi9">16</td>
+                        <td class="tg-uzi9">11.97 [11]</td>
+                      </tr>
+                      <tr>
+                        <td class="tg-2x6o">ESP - 32</td>
+                        <td class="tg-uzi9">34</td>
+                        <td class="tg-uzi9">YES</td>
+                        <td class="tg-uzi9">3.3</td>
+                        <td class="tg-uzi9">240</td>
+                        <td class="tg-uzi9">5.28 [12]</td>
+                      </tr>
+                      <tr>
+                        <td class="tg-2x6o">Raspberry-pi Pico</td>
+                        <td class="tg-uzi9">26</td>
+                        <td class="tg-uzi9">NO</td>
+                        <td class="tg-uzi9">3.3</td>
+                        <td class="tg-uzi9">133</td>
+                        <td class="tg-uzi9">6.9 [13]</td>
+                      </tr>
+                      <tr>
+                        <td class="tg-2x6o">Teensy 4.0</td>
+                        <td class="tg-uzi9">40</td>
+                        <td class="tg-uzi9">NO</td>
+                        <td class="tg-uzi9">3.3</td>
+                        <td class="tg-uzi9">600</td>
+                        <td class="tg-uzi9">37.4 [14]</td>
+                      </tr>
+                    </tbody></table>
+
+            </p>
+
+            <p>
+                <br>
+                Since the chosen motor is a 6V motor, the selected microcontroller must support this voltage. 
+                The Arduino Uno, based on the ATMEGA328P, fits this requirement. 
+                Although a motor driver will be necessary to handle the required currents, no additional voltage regulation will be needed for the microcontroller itself.
+                
+                <br><br>
+                However, as mentioned above, the Arduino Uno lacks Wi-Fi capabilities. 
+                To address this, we will use an ESP-32, based on the dual-core Tensilica LX6, as a Wi-Fi relay. 
+                While the ESP-32 will require a 5V voltage regulator and a level shifter to operate properly, this setup is still more straightforward than managing a motor driver with two voltage levels.
+
+            </p>
+
+            <h3>Batteries and Voltage Regulator</h3>
+            <p>
+                The batteries selected for this project are the industry-standard 18650 batteries, which are among the most used batteries in robotics. 
+                Typically, these batteries have a nominal voltage of 3.7V, with power capacity varying by manufacturer. 
+                To ensure a longer continuous runtime, the robot will be equipped with four of these batteries. 
+                Additionally, a voltage regulator will be included to stabilize and manage the voltage supplied from the batteries to the system.
+            </p>
+
+            <h3>Optimizations</h3>
+
+            <p>
+                Due to the limited number of GPIO pins on the Arduino Uno and the requirement of four pins per ultrasonic sensor, a multiplexer will be used to select one sensor at a time. This approach reduces the total number of required pins from ten to seven, enabling a more efficient use of the available GPIO resources. <br>
+                The limited number of external interrupts on the ATMEGA328P microcontroller also posed a challenge. To address this, half of the resolution of the motors was sacrificed, as it was only possible to use a single encoder wire per motor. <br>
+                Additionally, it will not be possible to make the motors rotate counterclockwise (move the robot backward or rotate in place) because the motor drivers are controlled by a single PWM signal, with all other pins allocated for other functions. <br>
+            </p>
+            
+
+            <h3>3D Model</h3>
+            <p>
+                To plan the best approach for building the robot, it was chosen to fully model it in Fusion 360. <br>
+                This 3D model will help identify the optimal design, minimizing the need for reprinting the frame due to unforeseen changes.<br>
+                The final model dimensions are 205 mm in width, 175 mm in depth, and 124 mm in height.<br>
+            </p>
+
+            <p>
+                <img src="Render1LABSI.png" alt="3D Model" style="width: 45%; height: auto;">
+                <img src="Render2LABSI.png" alt="3D Model" style="width: 45%; height: auto;">
+            </p>
+
+            <h3>Custom PCB</h3>
+            <p>
+                One of the project's objectives was to design a custom PCB tailored to the specific requirements of the project. <br>
+                This was accomplished using EasyEDA, a free online PCB design tool. <br>
+                The PCB includes support for all necessary components, with connectors for the motors and ultrasonic sensors. <br>
+                The design is shown below. <br><br>
+            </p>
+
+            <div style="text-align: center;">
+                <img src="PCB.png" alt="3D Model" style="width: 49%; height: auto;">
+                <img src="PCB2.png" alt="3D Model" style="width: 49%; height: auto;">
+            </div>
+
+            
+
+        </section>
+
+        <section id="software">
+            <h2 class="section-title">Software</h2>
+
+            <h3>Implementation</h3>
+            <p>
+                The software was developed in C++ using VSCode and PlatformIO. The code was structured into three main components: motor control, sensor reading, and Wi-Fi communication. <br>
+                Initially, the implementation relied on objects and structures, spread across multiple header and source files. However, this approach posed challenges, as the compiled code struggled to run efficiently on the ATMEGA328P microcontroller.<br>
+                To address this issue, the code was refactored into a more procedural style. This adjustment significantly improved memory usage efficiency, allowing the code to execute properly on the hardware. <br>
+
+            </p>
+
+            <h3>Functions</h3>
+            
+            <h4>Initializations</h4>
+            <p>
+                The initializations were responsible for setting up the microcontroller and its peripherals. <br>
+                The initializations focused on two main components separated into two functions: initTimersandInterrupts and initPins<br>
+                These functions were responsible for setting up the timers and interrupts, as well as the pins for the ultrasonic sensors and motor control. <br>
+                The timers and pins were set as shown below. <br>
+                
+                    <div style="text-align: center;">
+                        <img src="InitDiag.png" alt="3D Model" style="width: 45%; height: auto;">
+                    </div>
+
+            </p>
+
+            <h4>Motor Control</h4>
+            <p>
+                The motor control functions were designed to handle the movement of the robot. The code was structured to allow for precise control of the robot's speed and direction. <br>
+                This was achieved using the encoders to measure how much the wheels have turn and calculate the traveled distance from there. <br>
+                The motors are controlled trough a motor driver, which is controlled by the microcontroller using a PWM signal calculated from the target distance and current distance. <br><br>
+            
+                <div style="text-align: center;">
+                    <img src="FluxMotores.png" alt="3D Model" style="width: 60%; height: auto;">
+                </div>
+
+            </p>
+
+            <h4>Ultrasonic Sensors</h4>
+            <p>
+                The ultrasonic sensors are controlled using a multiplexer to choose the one we pretend to read from. <br>
+                The trigger and echo use the timer1 as it is a 16-bit timer, which allows for a more precise reading.
+                The timer was initialized as shown above. <br>
+                
+                It was a goal of the project, to increase the accuracy of the reading, to take a temperature reading and adjust the speed of sound accordingly. <br>
+                Unfortunately, this was not possible due to time constraints. <br><br>
+
+                <div style="text-align: center;">
+                    <img src="FluxUS.png" alt="3D Model" style="width: 40%; height: auto;">
+                </div>
+
+            </p>
+
+            <h4>Wi-Fi Communication</h4>
+            <p>
+                The Wi-Fi communication was implemented using the ESP8266 module, which is a WiFi module based on the ESP8266 chip. <br>
+                The module was configured to connect to a WiFi network and send data to a server. <br>
+                The ESP8266 module was configured to connect to a WiFi network and send data to the computer. <br>
+                The computer then takes the data and draws a map, it also decides the next move of the robot. <br>
+                The computer then sends the data to the ESP8266 module, which then sends it to the Arduino. <br><br>
+            
+                <div style="text-align: center;">
+                    <img src="WI-FIFunc.png" alt="3D Model" style="width: 60%; height: auto;">
+                </div>
+            
+            </p>
+
+        </section>
+
+
+        <section id="results">
+            <h2 class="section-title">Results</h2>
+
+                <h3>Mapping</h3>
+
+                <p>
+                    Although mapping was achieved, there is significant room for improvement. The intention was for the received data to be used to draw a map, which was successfully accomplished when the robot moved in a straight line. A more ambitious goal was to utilize the map for navigation after the area was mapped, but unfortunately, this was not achieved. <br>
+                    The decision-making process also requires enhancements, as it lacks dynamism, leaving certain parts of the map unattainable. <br>
+                    The process could also be made more efficient if mapping were performed while the robot moved. However, this was not implemented due to concerns about inefficient use of the encoders. Addressing this limitation could be a major improvement for a future version of the project. <br>
+                    Below is an example of a map created by the robot. <br>
+                    As can be seen, the robot was able to map the area but was unable to navigate it, moving only in a straight line. <br>
+                    This limitation arose from having only two available PWM signals, which prevented the robot's wheels from turning in both directions. This made turning calculations very challenging, and due to time constraints, it was not possible to implement the turning algorithm for the robot. <br>
+                    An attempt was made using the Ackermann steering model, but the results were not satisfactory. <br><br>
+                
+                    <img src="Map.png" alt="3D Model" style="width: 54%; height: auto;">
+                    <img src="MappedArea.jpg" alt="3D Model" style="width:44%; height: auto;">
+
+                </p>
+
+                <h3>Cost</h3>
+
+                <p>
+                    The project was designed to minimize costs. <br>
+                    The total cost of the project was 40 €, which is comparable to the Kitronik robot kit, priced at 37€. However, the major advantage of this project is that the robot is Wi-Fi ready and has a battery. <br>
+                    For a future iteration, it would be worthwhile to remove the Arduino UNO and rely solely on the more powerful ESP32. This change would enable the use of multiple PWM signals, provide significantly more processing power, and reduce the overall cost. <br>
+                </p>
+
+                <h3>Wheels Inovation</h3>
+                <p>
+                    Although somewhat unexpected, one of the major issues faced was with the wheels. Since they are 3D-printed, like the rest of the robot, traction proved to be a significant challenge. <br>
+                    The first attempt to address this issue involved using rubber bands, but this was insufficient. A second approach was to make the wheels wider and apply sandpaper tape to roughen their surface, but this also failed to provide adequate traction. The final solution was to coat the outside of the wheels with a layer of hot glue, which effectively acted as a tire. <br>
+                    A recommendation for anyone attempting to replicate this project is to use pre-made wheels instead of 3D-printed ones. <br><br>
+
+                    <div style="text-align: center;">
+                        <img src="Wheels.jpg" alt="3D Model" style="width: 50%; height: auto;">
+                    </div>
+                    
+                </p>
+                
+                
+                
+
+        </section>
+
+        <section id="conclusions">
+            <h2 class="section-title">Conclusions</h2>
+            <h3>Considerations and Future Improvements</h3>
+
+                <p>
+                    Despite its limitations, the project was considered a success, as it was able to map the area and transmit the data to a computer while maintaining a low cost. <br>
+                    As mentioned above, future improvements could include using the ESP32 as the main microcontroller, making better use of the motor encoders, and implementing a more dynamic decision-making process. <br>
+                    These enhancements would result in a more comprehensive and efficient solution at a lower price point compared to current market offerings. <br>
+                </p>
+
+            <h3>Pictures of the Project</h3>
+                
+                <p>
+                    Below are some pictures of the project. <br><br>
+                
+                    <div style="text-align: center;">
+                        <img src="Robot.jpg" alt="3D Model" style="width: 50%; height: auto;">
+                        <img src="Robot2.jpg" alt="3D Model" style="width: 50%; height: auto;">
+                    </div>
+                
+                </p>
+
+        </section>
+
+        <section id="references">
+            <h2 class="section-title">References</h2>
+            <h3>Links</h3>
+
+                <p>
+                Every link present below was acessed and worked on the 11th of January 2025.    <br><br>
+
+                [1]  <a href="https://www.robotshop.com/products/clearpath-robotics-turtlebot-4-mobile-robot"> Clearpath Robotics TurtleBot 4 Mobile Robot</a> <br>
+                [2]  <a href="https://www.robotshop.com/products/hiwonder-hiwonder-turbopi-raspberry-pi-omni-mecanum-wheels-robot-car-kit-w-camera-open-source-python-beginners-w-rpi-4b-4gb"> Hiwonder TurboPi Raspberry Pi Omni Mecanum Wheels Robot</a> <br>
+                [3]  <a href="https://www.robotshop.com/products/kitronik-autonomous-robotics-platform-buggy-for-pico">Kitronik Autonomous Robotics Platform</a> <br>
+                [4]  <a href="https://www.robotshop.com/products/jetbot-ros-ai-kit-dual-controllers-waveshare-jetson-nano-dev-kit-tf-card">JetBot Pro ROS AI Kit Dual Controllers</a> <br>
+                [5]  <a href="https://www.ptrobotics.com/sensor-ultrasom/7211-hc-sr04p-ultrasonic-range-finder-33-5v.html">HC-SR04P Ultrasonic Range Finder 3.3-5V</a> <br>
+                [6]  <a href="https://pt.mouser.com/ProductDetail/Benewake/TFmini-S-Uart?qs=DPoM0jnrROXBvfO6mWli6w%3D%3D">TFmini S Uart</a> <br>
+                [7]  <a href="https://www.botnroll.com/pt/outros/4814-rplidar-a1m8-r6-slamtec-scanner-laser-360.html">RPLIDAR A1M8-R6 - SLAMTEC SCANNER LASER 360º</a> <br>
+                [8]  <a href="https://pt.aliexpress.com/item/4001314473291.html?spm=a2g0o.order_list.order_list_main.17.44decaa4SgSW9K&gatewayAdapt=glo2bra">JGA25-370 DC Motor De Desaceleração com Código De Medição De Velocidade Do Codificador</a> <br>
+                [9]  <a href="https://www.ptrobotics.com/motor-dc-com-engrenagens/7831-micro-motor-com-encoder-e-caixa-redutora-2101-6v-75rpm.html">Micro Motor com Encoder e Caixa Redutora 210:1 - 6V 75RPM</a> <br>
+                [10] <a href="https://www.ptrobotics.com/motor-dc-com-engrenagens/6083-emg30-gearmotor-with-encoder.html">EMG30 - GearMotor with Encoder</a> <br>
+                [11] <a href="https://casadaspecas.pt/placas/51736-arduino-uno-r3-00002837.html">Arduino UNO R3</a> <br>
+                [12] <a href="https://pt.aliexpress.com/item/1005006516529521.html?src=google">ESP-WROOM-32 Placa de Desenvolvimento</a> <br>
+                [13] <a href="https://www.ptrobotics.com/raspberry-pi/13286-raspberry-pi-pico-2.html">Raspberry Pi Pico 2</a> <br>
+                [14] <a href="https://www.ptrobotics.com/modulos-teensy/8303-teensy-40.html">Teensy 4.0</a> <br>
+                </p>
+
+            <h3>Useful Links and Resources</h3>
+
+                <p>
+                Every link present below was acessed and worked on the 11th of January 2025.    <br><br>
+
+                <a href="https://chatgpt.com/">Chat GPT for code and text revision</a> <br>
+                <a href="https://en.wikipedia.org/wiki/Differential_wheeled_robot">Differential Wheeled Robot Wikipedia</a> <br>
+                <a href="https://app.diagrams.net/">Drawio to draw all the diagrams</a> <br>
+                <a href="https://www.autodesk.com/pt/products/fusion-360/overview">Fusion 360 to draw the 3D model</a> <br>
+                <a href="https://easyeda.com/">EasyEDA to draw the PCB</a> <br>
+                <a href="https://ww1.microchip.com/downloads/en/DeviceDoc/Atmel-7810-Automotive-Microcontrollers-ATmega328P_Datasheet.pdf">ATMEGA328P Datasheet</a> <br>
+                <a href="https://moodle.isep.ipp.pt/course/view.php?id=5776">The Moodle for the curricular unit</a> <br>
+                </p>
+            
+            <h3>Acknowledgements</h3>
+
+                <p>
+                    A special thanks to Fabio Pacheco, Diogo Paiva and Bruno Moreira for the help and support during the project. <br>
+                    A special thanks to the teacher, Ramiro de Sousa Barbosa, for the support and guidance provided during the project. <br>
+                </p>
+            
+            <h3>Publicly Available</h3>
+                
+                <p>
+                    This project is publically available at <a href="
+                
+                </p>
+
+        </section>
+
+    </main>
+</body>
+</html>
+ 

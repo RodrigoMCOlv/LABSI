@@ -1,0 +1,14 @@
+INPUTS:
+
+DistanceMoved
+Angle of the move
+
+Distance from Sensor1
+Distance from Sensor2
+Distance from Sensor3
+Distance from Sensor4
+
+OUTPUT:
+
+Current x and y and angle
+Add point seen by US
